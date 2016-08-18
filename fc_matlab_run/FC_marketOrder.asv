@@ -10,7 +10,7 @@ end;
 Parameters for createEntryOrder function:
 accountNumber, trade size, side, TIF, symbol, ticket# 
 
-accountNumber - account can be found in Trading Station
+accountNumber - account name can be found in Trading Station
 trade size - for FX min. 1000 or account min. trade size
 side - B=Buy, S=Sell
 Time in Force parameters: GTC, IOC, FOK 
@@ -18,6 +18,5 @@ symbol - any symbol available in your account
 ticket# - it is the open position ticket number, can be found in Trading
             Station in Open positions tab
 
-to close an open position the side should be oposite than open position,
-the account should not be FIFO.
+to close an open position the 
 %}
