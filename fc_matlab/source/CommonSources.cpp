@@ -17,7 +17,7 @@ void logout(IO2GSession *session, SessionStatusListener *statusListener)
 {
     statusListener->reset();
     session->logout();
-    statusListener->waitEvents();
+    //statusListener->waitEvents();
 }
 
 void formatDate(DATE date, char *buf)

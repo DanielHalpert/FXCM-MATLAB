@@ -67,14 +67,14 @@ void SessionStatusListener::onSessionStatusChanged(IO2GSessionStatus::O2GSession
     switch (status)
     {
     case IO2GSessionStatus::Disconnected:
-        std::cout << "status::disconnected" << std::endl;
+		printLog("status::disconnected");
 		cb_sendMsg("status::disconnected", 1);
         mConnected = false;
         mDisconnected = true;
         SetEvent(mSessionEvent);
         break;
     case IO2GSessionStatus::Connecting:
-        std::cout << "status::connecting" << std::endl;
+		printLog("status::connecting");
 		cb_sendMsg("status::connecting", 1);
         break;
     case IO2GSessionStatus::TradingSessionRequested:
@@ -112,22 +112,22 @@ void SessionStatusListener::onSessionStatusChanged(IO2GSessionStatus::O2GSession
     }
     break;
     case IO2GSessionStatus::Connected:
-        std::cout << "status::connected" << std::endl;
+		printLog("status::connected");
 		cb_sendMsg("status::connected", 1);
         mConnected = true;
         mDisconnected = false;
         SetEvent(mSessionEvent);
         break;
     case IO2GSessionStatus::Reconnecting:
-        std::cout << "status::reconnecting" << std::endl;
+		printLog("status::reconnecting");
 		cb_sendMsg("status::reconnecting", 1);
         break;
     case IO2GSessionStatus::Disconnecting:
-        std::cout << "status::disconnecting" << std::endl;
+		printLog("status::disconnecting");
 		cb_sendMsg("status::disconnecting", 1);
         break;
     case IO2GSessionStatus::SessionLost:
-        std::cout << "status::session lost" << std::endl;
+		printLog("status::session lost");
 		cb_sendMsg("status::session lost", 1);
         break;
     }

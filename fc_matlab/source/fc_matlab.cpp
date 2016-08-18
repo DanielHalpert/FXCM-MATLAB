@@ -10,10 +10,13 @@
 #include "CommonSources.h"
 #include <iostream>
 #include <fstream>
+#include <string>
 
 void printPrices(IO2GResponse *response, const char* fileName);
-IO2GRequest *createMarketOrderRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount, const char *sBuySell, const char* tif);
+IO2GRequest *createMarketOrderRequest(IO2GSession* session, const char* sOfferID, const char* sAccountID, int iAmount, const char* sBuySell, const char* tif, const char* ticketNum);
 IO2GRequest *createEntryOrderRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount, const char *sBuySell, const char* StopLimit, const double price);
+IO2GRequest *createELSRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount, double dRate, double dRateLimit, double dRateStop, const char *sBuySell, const char *sOrderType, const char * tif, const int trailStop);
+
 char* getAccountID(IO2GSession *session, const char *sAccount);
 
 static IO2GSession *session=NULL;
@@ -48,14 +51,34 @@ int __stdcall  login_fc(const char* username, const char* pass, const char* conn
 
 int __stdcall logout_fc()
 {
+	printLog("unsubscribeResponse(responseListener)");
+	session->unsubscribeResponse(responseListener);
 
+	printLog("responseListener->release");
+	responseListener->release();
+
+	printLog("logout");
+	logout(session, sessionListener);
+	
+	printLog("unsubscribeSessionStatus(sessionListener)");
 	session->unsubscribeSessionStatus(sessionListener);
-    sessionListener->release();
-    session->release();
 
+	printLog("sessionListener->release()");
+    sessionListener->release();
+
+	printLog("session->release()");
+    session->release();
+	
 	return(1);
 }
 
+void printLog(std::string str)
+{
+	SYSTEMTIME lpSystemTime;
+	GetSystemTime(&lpSystemTime);
+	std::cout << lpSystemTime.wHour << ":" << lpSystemTime.wMinute << ":" << lpSystemTime.wSecond << "," << lpSystemTime.wMilliseconds << " : " << str << "\n";
+}
+//------------------------------------------
 //------------------------------------------
 //get historical prices
 bool __stdcall getHistoryPrices(const char *sInstrument, const char *sTimeframe,  const char* dtFrom1,  const char* dtTo1, const char* fileName)
@@ -218,7 +241,7 @@ void printPrices(IO2GResponse *response, const char* fileName)
     }
 }
 //-----------------------------------------------------------------------------------//
-int __stdcall createMarketOrder(const char *sAccount, int iAmount, const char *sBuySell, const char *tif, const char *instrument)
+int __stdcall createMarketOrder(const char *sAccount, int iAmount, const char *sBuySell, const char *tif, const char *instrument, const char *ticketNum)
 {
 	int ret = 0;
 	O2G2Ptr<IO2GOfferRow> offer = getOffer(session, instrument);
@@ -226,7 +249,7 @@ int __stdcall createMarketOrder(const char *sAccount, int iAmount, const char *s
 
 	if (offer && accountID != NULL)
 	{
-		O2G2Ptr<IO2GRequest> request = createMarketOrderRequest(session, offer->getOfferID(), accountID, iAmount, sBuySell, tif);
+		O2G2Ptr<IO2GRequest> request = createMarketOrderRequest(session, offer->getOfferID(), accountID, iAmount, sBuySell, tif, ticketNum);
 		if (request)
         {
             responseListener->setRequestID(request->getRequestID());
@@ -276,7 +299,89 @@ int __stdcall createEntryOrder(const char *sAccount, int iAmount, const char *sB
 	return(ret);
 }
 //-----------------------------------------------------------------------------------//
-IO2GRequest *createMarketOrderRequest(IO2GSession* session, const char* sOfferID, const char* sAccountID, int iAmount, const char* sBuySell, const char* tif)
+int __stdcall createELSorder(const char *sAccount, int iAmount, const char *sBuySell, const char *instrument, const char *ordType1, const char *tif, const double price, const double limitPrice, const double stopPrice, const int trailStop)
+{
+	int ret = 0;
+	char orderType[5];
+	O2G2Ptr<IO2GOfferRow> offer = getOffer(session, instrument);
+	char* accountID = getAccountID(session, sAccount);
+	//char orderType2[4];
+	//O2GRequestParamsEnum::TimeInForce;// tif1 = O2G2::TIF::GTC;
+
+
+	if (offer && accountID != NULL)
+	{
+		if (price == 0 || ordType1[0] == 'M' || ordType1[0] == 'm')
+			strcpy(orderType, "OM");
+		else
+		{
+			if (ordType1[0] == 'S' || ordType1[0] == 's')
+				strcpy(orderType, "SE");
+			else if (ordType1[0] == 'L' || ordType1[0] == 'l')
+					strcpy(orderType, "LE");
+			else
+				strcpy(orderType, "OM");
+		}
+			
+
+
+		O2G2Ptr<IO2GRequest> request = createELSRequest(session, offer->getOfferID(), accountID, iAmount, price, limitPrice, stopPrice, sBuySell, orderType, tif, trailStop);
+		if (request)
+		{
+			responseListener->setRequestID(request->getRequestID());
+			session->sendRequest(request);
+			//if (responseListener->waitEvents())
+			{
+				Sleep(2000); // Wait for the balance update
+				std::cout << "Done createELSorder!" << std::endl;
+				ret = 1;
+			}
+		}
+	}
+	return(ret);
+}
+//-----------------------------------------------------------------------------------//
+IO2GRequest *createELSRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount,	double dRate, double dRateLimit, double dRateStop, const char *sBuySell, const char *sOrderType, const char * tif, const int trailStop)
+{
+	O2G2Ptr<IO2GRequestFactory> requestFactory = session->getRequestFactory();
+	if (!requestFactory)
+	{
+		std::cout << "Cannot create request factory" << std::endl;
+		return NULL;
+	}
+	O2G2Ptr<IO2GValueMap> valuemap = requestFactory->createValueMap();
+	valuemap->setString(Command, O2G2::Commands::CreateOrder);
+	valuemap->setString(OrderType, sOrderType);
+	valuemap->setString(AccountID, sAccountID);
+	valuemap->setString(OfferID, sOfferID);
+	valuemap->setString(BuySell, sBuySell);
+	valuemap->setInt(Amount, iAmount);
+	if (strcmp(sOrderType, "OM") != 0 && dRate > 0)
+		valuemap->setDouble(Rate, dRate);
+	valuemap->setDouble(RateLimit, dRateLimit);
+	valuemap->setDouble(RateStop, dRateStop);
+	valuemap->setString(TimeInForce, tif);
+	valuemap->setString(CustomID, "ELS_order");
+
+	if (trailStop > 0)
+	{
+		valuemap->setInt(TrailStepStop, trailStop);
+	}
+
+	if (tif > 0)
+		valuemap->setString(TimeInForce, tif);
+
+	O2G2Ptr<IO2GRequest> request = requestFactory->createOrderRequest(valuemap);
+	if (!request)
+	{
+		std::cout << requestFactory->getLastError() << std::endl;
+		return NULL;
+	}
+	return request.Detach();
+}
+
+//-----------------------------------------------------------------------------------//
+IO2GRequest *createMarketOrderRequest(IO2GSession* session, const char* sOfferID, const char* sAccountID, int iAmount, const char* sBuySell, const char* tif, const char* ticketNum)
 {
     O2G2Ptr<IO2GRequestFactory> requestFactory = session->getRequestFactory();
     if (!requestFactory)
@@ -286,13 +391,22 @@ IO2GRequest *createMarketOrderRequest(IO2GSession* session, const char* sOfferID
     }
     O2G2Ptr<IO2GValueMap> valuemap = requestFactory->createValueMap();
     valuemap->setString(Command, O2G2::Commands::CreateOrder);
-    valuemap->setString(OrderType, O2G2::Orders::TrueMarketOpen);
+    
     valuemap->setString(AccountID, sAccountID);
     valuemap->setString(OfferID, sOfferID);
     valuemap->setString(BuySell, sBuySell);
     valuemap->setInt(Amount, iAmount);
     valuemap->setString(CustomID, "MarketOrder");
 	valuemap->setString(TimeInForce, tif); // O2G2::TIF::GTC);
+	if (ticketNum == NULL || ticketNum[0] == 0)
+		valuemap->setString(OrderType, O2G2::Orders::TrueMarketOpen);
+	else
+	{
+		valuemap->setString(OrderType, O2G2::Orders::TrueMarketClose);
+		valuemap->setString(TradeID, ticketNum);
+	}
+		
+
     O2G2Ptr<IO2GRequest> request = requestFactory->createOrderRequest(valuemap);
     if (!request)
     {

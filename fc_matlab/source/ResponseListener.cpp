@@ -48,9 +48,13 @@ long ResponseListener::addRef()
 /** Decrease reference counter. */
 long ResponseListener::release()
 {
+	
     long rc = InterlockedDecrement(&mRefCount);
-    if (rc == 0)
-        delete this;
+	if (rc == 0)
+	{
+		delete this;
+		printLog("ResponseListener -> delete");
+	}
     return rc;
 }
 
@@ -94,6 +98,7 @@ void ResponseListener::onRequestCompleted(const char *requestId, IO2GResponse *r
         if (response->getType() != CreateOrderResponse)
             SetEvent(mResponseEvent);
     }
+	std::cout << "onRequestCompleted: " << requestId << std::endl;
 }
 
 /** Request execution failed data handler. */
