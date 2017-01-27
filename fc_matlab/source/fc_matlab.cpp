@@ -18,6 +18,9 @@ IO2GRequest *createEntryOrderRequest(IO2GSession *session, const char *sOfferID,
 IO2GRequest *createELSRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount, double dRate, double dRateLimit, double dRateStop, const char *sBuySell, const char *sOrderType, const char * tif, const int trailStop);
 
 char* getAccountID(IO2GSession *session, const char *sAccount);
+void printOpenPos(const char *sAccountID, const char *sfile);
+void printWaitingOrders(const char *sAccountID, const char *sfile);
+
 
 static IO2GSession *session=NULL;
 static ResponseListener *responseListener=NULL;
@@ -45,6 +48,9 @@ int __stdcall  login_fc(const char* username, const char* pass, const char* conn
         responseListener = new ResponseListener(session);
         session->subscribeResponse(responseListener);
 	}
+
+	////**//////**//
+	///createMarketOrder("01549059", 12000, "S", "GTC", "EUR/USD", "");
 
 	return(1);
 }
@@ -245,7 +251,8 @@ int __stdcall createMarketOrder(const char *sAccount, int iAmount, const char *s
 {
 	int ret = 0;
 	O2G2Ptr<IO2GOfferRow> offer = getOffer(session, instrument);
-	char* accountID = getAccountID(session, sAccount);
+	char accountID[30];
+	strcpy(accountID, getAccountID(session, sAccount));
 
 	if (offer && accountID != NULL)
 	{
@@ -274,7 +281,8 @@ int __stdcall createEntryOrder(const char *sAccount, int iAmount, const char *sB
 {
 	int ret = 0;
 	O2G2Ptr<IO2GOfferRow> offer = getOffer(session, instrument);
-	char* accountID = getAccountID(session, sAccount);
+	char accountID[30];
+	strcpy(accountID, getAccountID(session, sAccount));
 
 	if (offer && accountID != NULL)
 	{
@@ -304,7 +312,9 @@ int __stdcall createELSorder(const char *sAccount, int iAmount, const char *sBuy
 	int ret = 0;
 	char orderType[5];
 	O2G2Ptr<IO2GOfferRow> offer = getOffer(session, instrument);
-	char* accountID = getAccountID(session, sAccount);
+
+	char accountID[30];
+	strcpy(accountID, getAccountID(session, sAccount));
 	//char orderType2[4];
 	//O2GRequestParamsEnum::TimeInForce;// tif1 = O2G2::TIF::GTC;
 
@@ -339,6 +349,24 @@ int __stdcall createELSorder(const char *sAccount, int iAmount, const char *sBuy
 		}
 	}
 	return(ret);
+}
+//-----------------------------------------------------------------------------------//
+int __stdcall printOpenPositions(const char *sAccount, const char *fileName)
+{
+	char accountID[30];
+	strcpy(accountID, getAccountID(session, sAccount));
+
+	printOpenPos(accountID, fileName);
+	return(0);
+}
+//-----------------------------------------------------------------------------------//
+int __stdcall printOrders(const char *sAccount, const char *fileName)
+{
+	char accountID[30];
+	strcpy(accountID, getAccountID(session, sAccount));
+
+	printWaitingOrders(accountID, fileName);
+	return(0);
 }
 //-----------------------------------------------------------------------------------//
 IO2GRequest *createELSRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount,	double dRate, double dRateLimit, double dRateStop, const char *sBuySell, const char *sOrderType, const char * tif, const int trailStop)
@@ -434,7 +462,7 @@ IO2GRequest *createEntryOrderRequest(IO2GSession *session, const char *sOfferID,
     valuemap->setInt(Amount, iAmount);
     valuemap->setString(CustomID, "EntryOrder");
 
-	if (ticketNum != NULL)
+	if (ticketNum[0] != 0 && ticketNum != NULL)
 		valuemap->setString(TradeID, ticketNum);
 
     O2G2Ptr<IO2GRequest> request = requestFactory->createOrderRequest(valuemap);
@@ -556,6 +584,170 @@ char* getAccountID(IO2GSession *session, const char *sAccount)
         }
     }
     return NULL;
+}
+//-----------------------------------------------------------------------------------//
+void printOpenPos(const char *sAccountID, const char *fileName)
+{
+	double d1;
+	char buf[500];
+	int recNum = 0, k;
+	std::ofstream outFile;
+	//char fileName[] = "openPosList.csv";
+	bool saveToFile = (fileName[0] > 0);
+
+	O2G2Ptr<IO2GRequestFactory> requestFactory = session->getRequestFactory();
+	if (!requestFactory)
+	{
+		std::cout << "Cannot create request factory" << std::endl;
+		return;
+	}
+	O2G2Ptr<IO2GRequest> request = requestFactory->createRefreshTableRequestByAccount(Trades, sAccountID);
+	if (request)
+	{
+		std::cout << "Trades table for account " << sAccountID << std::endl;
+		responseListener->setRequestID(request->getRequestID());
+		session->sendRequest(request);
+		if (!responseListener->waitEvents())
+		{
+			std::cout << "Response waiting timeout expired" << std::endl;
+			return;
+		}
+
+		if (saveToFile)
+			outFile.open(fileName, std::ios_base::out | std::ios_base::trunc);
+		else
+			std::cout << fileName << "...\n";
+
+		O2G2Ptr<IO2GResponse> response = responseListener->getResponse();
+		if (response)
+		{
+			O2G2Ptr<IO2GResponseReaderFactory> responseReaderFactory = session->getResponseReaderFactory();
+			O2G2Ptr<IO2GTradesTableResponseReader> responseReader = responseReaderFactory->createTradesTableReader(response);
+
+			if (saveToFile)
+			{
+				saveToFile = (outFile.is_open());
+				outFile << ("OrderID,TradeID,OpenOrderID,TradeIDOrigin,Margin,Amount,BuySell,Price\n");
+			}
+			else
+			{
+				cb_sendMsg("OrderID,TradeID,OpenOrderID,TradeIDOrigin,Margin,Amount,BuySell,Price\n", 2);
+			}
+
+			k = responseReader->size();
+			for (int i = 0; i < k; ++i)
+			{
+				recNum++;
+				O2G2Ptr<IO2GTradeRow> tradeTable = responseReader->getRow(i);
+				sprintf(buf, "%s, %s, %s, %s, %f, %i, %s, %.5f\n", tradeTable->getTradeID(), tradeTable->getTradeID(), tradeTable->getOpenOrderID(), tradeTable->getTradeIDOrigin(), tradeTable->getUsedMargin(), tradeTable->getAmount(), tradeTable->getBuySell(), tradeTable->getOpenRate());
+
+				if (saveToFile)
+				{
+					outFile << buf;
+					//std::cout << buf;
+				}
+				else
+				{
+					cb_sendMsg(buf, 2);
+					//std::cout << buf;
+				}
+			}
+
+			if (saveToFile)
+				outFile.close();
+		}
+		else
+		{
+			std::cout << "Cannot get response" << std::endl;
+			return;
+		}
+	}
+	else
+	{
+		std::cout << "Cannot create request" << std::endl;
+		return;
+	}
+}
+//-----------------------------------------------------------------------------------//
+// Print orders table for account
+void printWaitingOrders(const char *sAccountID, const char *fileName)
+{
+	double d1;
+	char buf[500];
+	int recNum = 0, k;
+	std::ofstream outFile;
+	//char fileName[] = "ordersList.csv";
+	bool saveToFile = (fileName[0] > 0);
+
+	O2G2Ptr<IO2GRequestFactory> requestFactory = session->getRequestFactory();
+	if (!requestFactory)
+	{
+		std::cout << "Cannot create request factory" << std::endl;
+		return;
+	}
+	O2G2Ptr<IO2GRequest> request = requestFactory->createRefreshTableRequestByAccount(Orders, sAccountID);
+	if (request)
+	{
+		std::cout << "Orders table for account " << sAccountID << std::endl;
+		responseListener->setRequestID(request->getRequestID());
+		session->sendRequest(request);
+		if (!responseListener->waitEvents())
+		{
+			std::cout << "Response waiting timeout expired" << std::endl;
+			return;
+		}
+
+		if (saveToFile)
+			outFile.open(fileName, std::ios_base::out | std::ios_base::trunc);
+		else
+			std::cout << fileName << "...\n";
+
+		O2G2Ptr<IO2GResponse> response = responseListener->getResponse();
+		if (response)
+		{
+			O2G2Ptr<IO2GResponseReaderFactory> responseReaderFactory = session->getResponseReaderFactory();
+			O2G2Ptr<IO2GOrdersTableResponseReader> responseReader = responseReaderFactory->createOrdersTableReader(response);
+
+			if (saveToFile)
+			{
+				saveToFile = (outFile.is_open());
+				outFile << ("OrderID,TradeID,ContingentOrderID,PrimaryID,Status,Amount,BuySell,Price\n");
+			}
+			else
+			{
+				cb_sendMsg("OrderID,TradeID,ContingentOrderID,PrimaryID,Status,Amount,BuySell,Price\n", 2);
+			}
+
+			k = responseReader->size();
+			for (int i = 0; i < k; ++i)
+			{
+				recNum++;
+				O2G2Ptr<IO2GOrderRow> orderTable = responseReader->getRow(i);
+				sprintf(buf, "%s, %s, %s, %s, %s, %i, %s, %.5f\n", orderTable->getOrderID(), orderTable->getTradeID(), orderTable->getContingentOrderID(), orderTable->getPrimaryID(), orderTable->getStatus(), orderTable->getAmount(), orderTable->getBuySell(), orderTable->getRate());
+
+				if (saveToFile)
+				{
+					outFile << buf;
+					//std::cout << buf;
+				}
+				else
+					cb_sendMsg(buf, 2);
+			}
+
+			if (saveToFile)
+				outFile.close();
+		}
+		else
+		{
+			std::cout << "Cannot get response" << std::endl;
+			return;
+		}
+	}
+	else
+	{
+		std::cout << "Cannot create request" << std::endl;
+		return;
+	}
 }
 
 
