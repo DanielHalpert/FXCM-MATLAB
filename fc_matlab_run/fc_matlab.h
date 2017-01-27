@@ -21,6 +21,8 @@ DECLDIR int __stdcall createEntryOrder(const char *sAccountID, int iAmount, cons
 DECLDIR int __stdcall createELSorder(const char *sAccount, int iAmount, const char *sBuySell, const char *instrument, const char *ordType1, const char *tif, const double price, const double limitPrice, const double stopPrice, const int trailStop);
 DECLDIR int __stdcall getRealTimePrices(const char *instrument);
 DECLDIR int __stdcall stopPrices(const char *instrument);
+DECLDIR int __stdcall printOpenPositions(const char *sAccount, const char *fileName);
+DECLDIR int __stdcall printOrders(const char *sAccount, const char *fileName);
 
 void __stdcall fc_mexCallback(char *msg, double msgType);
 //void printLog(std::string str);
