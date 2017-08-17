@@ -76,7 +76,13 @@ class Order2Go2 IO2GTableManagerListener : public IAddRef
     virtual void onStatusChanged(O2GTableManagerStatus status, IO2GTableManager *tableManager) = 0;
 };
 
-
+class Order2Go2 IO2GSystemPropertiesListener : public IAddRef
+{
+ protected:
+    IO2GSystemPropertiesListener();
+ public:
+    virtual void onChangeProperty(const char *propertyName, const char *propertyValue) = 0;
+};
 
 class Order2Go2 IO2GSession : public IAddRef
 {
@@ -100,12 +106,20 @@ class Order2Go2 IO2GSession : public IAddRef
     virtual void subscribeResponse(IO2GResponseListener *listener) = 0;
     /** Unsubscribes response listener.*/
     virtual void unsubscribeResponse(IO2GResponseListener *listener) = 0;
+    /** Subscribes system properties changes.*/
+    virtual void subscribeSystemPropertiesChange(IO2GSystemPropertiesListener *listener) = 0;
+    /** Unsubscribes system properties changes.*/
+    virtual void unsubscribeSystemPropertiesChange(IO2GSystemPropertiesListener *listener) = 0;
     /** Get the request factory.*/
     virtual IO2GRequestFactory * getRequestFactory() = 0 ;
     /** Gets the response factory reader.*/
     virtual IO2GResponseReaderFactory *getResponseReaderFactory() = 0;
     /** Send the request to the trade server.*/
     virtual void sendRequest(IO2GRequest *request) = 0;
+    /** Set timeout(ms) for all requests.*/
+    virtual void setRequestsTimeout(size_t timeout) = 0;
+    /** Get timeout(ms) for all requests.*/
+    virtual size_t getRequestsTimeout() = 0;
     /** Gets time converter for converting request and markes snapshot date.*/
     virtual IO2GTimeConverter *getTimeConverter() = 0;
     /** Set session mode.*/
@@ -113,26 +127,7 @@ class Order2Go2 IO2GSession : public IAddRef
     /** Get session mode.*/
     virtual O2GPriceUpdateMode getPriceUpdateMode() = 0;
     /** Get server time.*/
-    virtual DATE getServerTime() = 0;
-    /** Gets report URL.
-
-        @param  urlBuffer       [out] URL buffer.
-        @param  bufferSize      Buffer size.
-        @param  account         Account.
-        @param  dateFrom        Start date of the report period.
-        @param  dateTo          End date of the report period.
-        @param  format          Report format.  HTML will be used in case of 0.
-        @param  reportType      Report type.
-        @param  langID          Language and locale of the report.
-        @param  ansiCP          Code page.
-
-        @return Number of characters written to the URL buffer if the function succeeds and urlBuffer is nonzero.
-                The required size, in characters, for a buffer that can receive the URL string if the function succeeds and urlBuffer is zero.
-                Negative value indicates failure. See O2GReportUrlError for possible values.
-    */
-    virtual int getReportURL(char* urlBuffer, int bufferSize, IO2GAccountRow* account,
-        DATE dateFrom, DATE dateTo, const char* format, const char* reportType,
-        const char* langID, long ansiCP) = 0;
+    virtual DATE getServerTime() = 0;    
 
     /** Get table manager.*/
     virtual IO2GTableManager *getTableManager() = 0;
@@ -146,8 +141,17 @@ class Order2Go2 IO2GSession : public IAddRef
     /** Gets current session status.*/
     virtual IO2GSessionStatus::O2GSessionStatus getSessionStatus() = 0;
 
-    /** Gets the unique session identifier. */
-    virtual const char *getSessionID() = 0;
+    /** Set price refresh rate (ms).*/
+    virtual bool setPriceRefreshRate(int priceRefreshRate) = 0;
+    /** Get price refresh rate (ms).*/
+    virtual int getPriceRefreshRate() = 0;
+    /** Get minimum price refresh rate (ms).*/
+    virtual int getMinPriceRefreshRate() = 0;
+    /** Get maximum price refresh rate (ms).*/
+    virtual int getMaxPriceRefreshRate() = 0;
+    
+    /** Gets session sub ID. */
+    virtual const char* getSessionSubID() = 0;
 
     /** Sets the mode of the chart session. The method should be called before login. */
     virtual void setChartSessionMode(O2GChartSessionMode mode) = 0;
@@ -159,5 +163,17 @@ class Order2Go2 IO2GSession : public IAddRef
     virtual void unsubscribeChartSessionStatus(IO2GChartSessionStatus * listener) = 0;
     /** Gets current chart session status.*/
     virtual IO2GChartSessionStatus::O2GChartSessionStatus getChartSessionStatus() = 0;
+
+    /** Gets current user kind*/
+    virtual O2GUserKind getUserKind() = 0;
+    /** Gets user name. */
+    virtual const char* getUserName() = 0;
+
+    /** Gets the commissions provider */
+    virtual IO2GCommissionsProvider* getCommissionsProvider() = 0;
+
+    /** The method starts the logging out, waiting until it is completed and close the session object.
+    */
+    virtual void forceClose() = 0;
 };
 

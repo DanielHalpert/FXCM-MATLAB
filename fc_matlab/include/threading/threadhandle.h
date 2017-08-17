@@ -36,7 +36,7 @@ class GSTOOL3 ThreadHandle
 {
 #ifdef PTHREADS
     typedef pthread_t Handle;
-#else if WIN32
+#elif WIN32
     typedef unsigned long Handle;
 #endif
 

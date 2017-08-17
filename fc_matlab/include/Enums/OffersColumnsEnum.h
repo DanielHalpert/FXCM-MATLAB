@@ -32,7 +32,11 @@ class OfferColumnsEnum
      InstrumentType = 17,
      ContractMultiplier = 18,
      TradingStatus = 19,
-     ValueDate = 20
+     ValueDate = 20,
+     BidID = 21,
+     AskID = 22,
+     BidExpireDate = 23,
+     AskExpireDate = 24
    };
 };
 
@@ -62,6 +66,16 @@ class OfferTableColumnsEnum
      ContractMultiplier = 18,
      TradingStatus = 19,
      ValueDate = 20,
-     PipCost = 21
+     BidID = 21,
+     AskID = 22,
+     BidExpireDate = 23,
+     AskExpireDate = 24,
+     PipCost = 25,
+     BidChangeDirection = 26,
+     AskChangeDirection = 27,
+     HiChangeDirection = 28,
+     LowChangeDirection = 29,
+     DefaultSortOrder = 30,
+     FractionalPipSize = 31
    };
 };

@@ -7,6 +7,8 @@
 #endif
 #endif
 
+class IError;
+
 class Order2Go2 CO2GTransport
 {
  public:
@@ -46,5 +48,10 @@ class Order2Go2 CO2GTransport
     
     /** Get history size */
     static int getClosedHistorySize();
+    
+    /** The method stops all the background work related to the ForexConnect (for exmple background logging thread).
+        THE METHOD SHOULD BE CALLED ONLY AFTER ALL FOREXOCNNECT OBJECTS ARE DESTROYED. IT IS NOT POSSIBLE TO USE FOREXCONNECT AFTER THIS METHOD EXECUTION.
+    */
+    static void finialize();
 };
 

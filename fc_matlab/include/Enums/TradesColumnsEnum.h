@@ -62,6 +62,12 @@ class TradeTableColumnsEnum
      GrossPL = 20,
      Close = 21,
      Stop = 22,
-     Limit = 23
+     Limit = 23,
+     StopOrderID = 24,
+     LimitOrderID = 25,
+     Instrument = 26,
+     TrailRate = 27,
+     TrailStep = 28,
+     CloseCommission = 29
    };
 };

@@ -39,11 +39,11 @@
 #define SwitchToThread() sched_yield()
   #if defined(__APPLE__) && defined(__MACH__)
    #ifdef __LP64__
-        #define InterlockedIncrement(A) (long)OSAtomicIncrement64((volatile int64_t *)A)
-        #define InterlockedDecrement(A) (long)OSAtomicDecrement64((volatile int64_t *)A)
+        #define InterlockedIncrement(A) (long)OSAtomicAdd64( 1, (volatile int64_t *)A)
+        #define InterlockedDecrement(A) (long)OSAtomicAdd64(-1, (volatile int64_t *)A)
    #else
-        #define InterlockedIncrement(A) (long)OSAtomicIncrement32((volatile int32_t *)A)
-        #define InterlockedDecrement(A) (long)OSAtomicDecrement32((volatile int32_t *)A)
+        #define InterlockedIncrement(A) (long)OSAtomicAdd32( 1, (volatile int32_t *)A)
+        #define InterlockedDecrement(A) (long)OSAtomicAdd32(-1, (volatile int32_t *)A)
  #endif
         #include <libkern/OSAtomic.h>
         #define InterlockedBoolCompareExchange(A,B,C) OSAtomicCompareAndSwapLong(C,B,(volatile long *)A)

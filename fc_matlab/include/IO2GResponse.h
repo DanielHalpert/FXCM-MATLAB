@@ -35,6 +35,9 @@ class Order2Go2 IO2GResponseReaderFactory : public IAddRef
     /** Create market data response.*/
     virtual IO2GMarketDataResponseReader *createMarketDataReader(IO2GResponse *response) = 0;
 
+    /** Create level 2 market data response reader. */
+    virtual IO2GLevel2MarketDataUpdatesReader *createLevel2MarketDataReader(IO2GResponse *response) = 0;
+
     /** Create offers table response reader.*/
     virtual IO2GOffersTableResponseReader *createOffersTableReader(IO2GResponse *response)  = 0;
 

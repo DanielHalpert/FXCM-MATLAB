@@ -35,6 +35,10 @@ class IO2GOfferRow : public IO2GRow
     virtual double getContractMultiplier() = 0;
     virtual const char* getTradingStatus() = 0;
     virtual const char* getValueDate() = 0;
+    virtual const char* getBidID() = 0;
+    virtual const char* getAskID() = 0;
+    virtual DATE getBidExpireDate() = 0;
+    virtual DATE getAskExpireDate() = 0;
     //
 
     virtual bool isOfferIDValid() = 0;
@@ -58,6 +62,10 @@ class IO2GOfferRow : public IO2GRow
     virtual bool isContractMultiplierValid() = 0;
     virtual bool isTradingStatusValid() = 0;
     virtual bool isValueDateValid() = 0;
+    virtual bool isBidIDValid() = 0;
+    virtual bool isAskIDValid() = 0;
+    virtual bool isBidExpireDateValid() = 0;
+    virtual bool isAskExpireDateValid() = 0;
 };
 
 
@@ -69,7 +77,19 @@ class IO2GOfferTableRow : public IO2GOfferRow
  public:
     
     virtual double getPipCost() = 0;
+    virtual int getBidChangeDirection() = 0;
+    virtual int getAskChangeDirection() = 0;
+    virtual int getHiChangeDirection() = 0;
+    virtual int getLowChangeDirection() = 0;
+    virtual int getDefaultSortOrder() = 0;
+    virtual int getFractionalPipSize() = 0;
     //
 
+    virtual bool isBidChangeDirectionValid() = 0;
+    virtual bool isAskChangeDirectionValid() = 0;
+    virtual bool isHiChangeDirectionValid() = 0;
+    virtual bool isLowChangeDirectionValid() = 0;
+    virtual bool isDefaultSortOrderValid() = 0;
+    virtual bool isFractionalPipSizeValid() = 0;
 };
 

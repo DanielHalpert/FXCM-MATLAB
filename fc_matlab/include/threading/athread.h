@@ -121,7 +121,7 @@ class GSTOOL3 AThread
     #ifdef PTHREADS
         static void *threadRunner(void *param);
         static void threadCleanup(void *param);
-    #else if WIN32
+    #elif WIN32
         static unsigned int WINAPI threadRunner(void *param);
     #endif
 
@@ -136,7 +136,7 @@ class GSTOOL3 AThread
         //pthread_mutex_t mCondMutex;
         //pthread_cond_t mCondVar;
         PosixCondVar *mCondVar;
-    #else if WIN32
+    #elif WIN32
         HANDLE mThread;
     #endif 
 };

@@ -6,6 +6,7 @@ namespace Commands
     static const char CreateOrder[] = "CreateOrder";
     static const char CreateOCO[] = "CreateOCO";
     static const char CreateOTO[] = "CreateOTO";
+	static const char CreateOTOCO[] = "CreateOTOCO";
     static const char JoinToNewContingencyGroup[] = "JoinToNewContingencyGroup";
     static const char JoinToExistingContingencyGroup[] = "JoinToExistingContingencyGroup";
     static const char RemoveFromContingencyGroup[] = "RemoveFromContingencyGroup";
@@ -16,6 +17,8 @@ namespace Commands
     static const char GetLastOrderUpdate[] = "GetLastOrderUpdate";
     static const char AcceptOrder[] = "AcceptOrder";
     static const char ChangePassword[] = "ChangePassword";
+    static const char SendMail[] = "SendMail";
+    static const char UpdateCommissions[] = "UpdateCommissions";
 }
     static const char Buy[] = "B";
     static const char Sell[] = "S";
@@ -32,11 +35,13 @@ namespace Orders
     static const char CloseLimit[] = "CL";
     static const char StopEntry[] = "SE";
     static const char LimitEntry[] = "LE";
+    static const char RangeEntry[] = "RE";
     static const char Entry[] = "E";
     static const char Stop[] = "S";
     static const char Limit[] = "L";
     static const char StopTrailingEntry[] = "STE";
     static const char LimitTrailingEntry[] = "LTE";
+    static const char RangeTrailingEntry[] = "RTE";
 }
 
 namespace TIF
@@ -115,7 +120,27 @@ namespace SystemProperties
     static const char TRAILING_FLUCTUATE_PTS_MAX[] = "TRAILING_FLUCTUATE_PTS_MAX";
     static const char TRAILING_FLUCTUATE_PTS_MIN[] = "TRAILING_FLUCTUATE_PTS_MIN";
     static const char PEGGED_STOP_LIMIT_DISABLED[] = "PEGGED_STOP_LIMIT_DISABLED";
+    static const char FIRST_TICK_OPEN_PRICE_ENABLED[] = "FIRST_TICK_OPEN_PRICE_ENABLED";    
+}
 
+namespace MessageType
+{
+    static const char Regular[] = "0";
+    static const char Popup[] = "1";
+    static const char Answer[] = "2";
+    static const char ForcedPopup[] = "3";
+}
+
+namespace MessageFeature
+{
+    static const char Plain[] = "1";
+    static const char TradingHours[] = "2";
+    static const char Question[] = "3";
+    static const char Information[] = "4";
+    static const char MarketCondition[] = "5";
+    static const char SoftwareUpdate[] = "6";
+    static const char Emergency[] = "7";
+    static const char SystemFailure[] = "8";
 }
 }
 

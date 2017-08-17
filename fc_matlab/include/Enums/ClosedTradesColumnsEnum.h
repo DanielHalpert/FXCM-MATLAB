@@ -74,6 +74,8 @@ class ClosedTradeTableColumnsEnum
      TradeIDOrigin = 24,
      TradeIDRemain = 25,
      ValueDate = 26,
-     PL = 27
+     PL = 27,
+     Instrument = 28,
+     NetPL = 29
    };
 };

@@ -50,6 +50,12 @@ class IO2GTradeTableRow : public IO2GTradeRow
     virtual double getClose() = 0;
     virtual double getStop() = 0;
     virtual double getLimit() = 0;
+    virtual const char* getStopOrderID() = 0;
+    virtual const char* getLimitOrderID() = 0;
+    virtual const char* getInstrument() = 0;
+    virtual double getTrailRate() = 0;
+    virtual double getTrailStep() = 0;
+    virtual double getCloseCommission() = 0;
     //
 
 };

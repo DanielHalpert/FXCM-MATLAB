@@ -40,9 +40,12 @@ class Order2Go2 IO2GRequestFactory : public IAddRef
 
     /** Create market a data snapshot request.*/
     virtual IO2GRequest *createMarketDataSnapshotRequestInstrument(const char *instrument, IO2GTimeframe *timeframe, int maxBars = 300) = 0;
-
+    
     /** Fill parameters the market data snapshot*/
-    virtual void fillMarketDataSnapshotRequestTime(IO2GRequest *request, DATE timeFrom = 0, DATE timeTo = 0, bool isIncludeWeekends = false) = 0;
+    virtual void fillMarketDataSnapshotRequestTime(IO2GRequest *request, DATE timeFrom = 0, DATE timeTo = 0, bool isIncludeWeekends = false, O2GCandleOpenPriceMode mode = PreviousClose) = 0;
+
+    /** Create "confirmation mail" request. */
+    virtual IO2GRequest *createConfirmationMailRequest(IO2GMessageRow *messageRow) = 0;
 
     /** Gets refresh request.*/
     virtual IO2GRequest *createRefreshTableRequest(O2GTable table) = 0;
@@ -57,6 +60,5 @@ class Order2Go2 IO2GRequestFactory : public IAddRef
     virtual IO2GValueMap *createValueMap() = 0;
 
     /** Get last error.*/
-    virtual const char* getLastError() = 0;
+    virtual const char* getLastError() = 0;    
 };
-

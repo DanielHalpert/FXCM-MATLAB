@@ -20,8 +20,6 @@ class IO2GAccountRow : public IO2GRow
     virtual double getBalance() = 0;
     virtual double getNonTradeEquity() = 0;
     virtual double getM2MEquity() = 0;
-    virtual double getUsedMargin() = 0;
-    virtual double getUsedMargin3() = 0;
     virtual const char* getMarginCallFlag() = 0;
     virtual DATE getLastMarginCallDate() = 0;
     virtual const char* getMaintenanceType() = 0;
@@ -30,6 +28,8 @@ class IO2GAccountRow : public IO2GRow
     virtual bool getMaintenanceFlag() = 0;
     virtual const char* getManagerAccountID() = 0;
     virtual const char* getLeverageProfileID() = 0;
+    virtual double getHadgeMarginPCT() = 0;
+    virtual const char* getATPID() = 0;
     //
 
 };
@@ -42,10 +42,14 @@ class IO2GAccountTableRow : public IO2GAccountRow
 
  public:
     
+    virtual double getUsedMargin() = 0;
+    virtual double getUsedMargin3() = 0;
     virtual double getEquity() = 0;
     virtual double getDayPL() = 0;
     virtual double getUsableMargin() = 0;
     virtual double getGrossPL() = 0;
+    virtual int getUsableMarginInPercentage() = 0;
+    virtual int getUsableMaintMarginInPercentage() = 0;
     //
 
 };

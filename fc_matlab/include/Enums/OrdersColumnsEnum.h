@@ -44,9 +44,12 @@ class OrderColumnsEnum
      WorkingIndicator = 29,
      PegType = 30,
      PegOffset = 31,
-     ExpireDate = 32,
-     ValueDate = 33,
-     Parties = 34
+     PegOffsetMin = 32,
+     PegOffsetMax = 33,
+     ExpireDate = 34,
+     ValueDate = 35,
+     Parties = 36,
+     Side = 37
    };
 };
 
@@ -87,12 +90,19 @@ class OrderTableColumnsEnum
      WorkingIndicator = 29,
      PegType = 30,
      PegOffset = 31,
-     ExpireDate = 32,
-     ValueDate = 33,
-     Parties = 34,
-     Stop = 35,
-     Limit = 36,
-     StopTrailStep = 37,
-     StopTrailRate = 38
+     PegOffsetMin = 32,
+     PegOffsetMax = 33,
+     ExpireDate = 34,
+     ValueDate = 35,
+     Parties = 36,
+     Side = 37,
+     Stop = 38,
+     Limit = 39,
+     StopOrderID = 40,
+     LimitOrderID = 41,
+     TypeStop = 42,
+     TypeLimit = 43,
+     StopTrailStep = 44,
+     StopTrailRate = 45
    };
 };

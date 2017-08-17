@@ -4,6 +4,16 @@
 typedef enum
 {
 UnknownParam = -1,
+
+MsgType = -100,
+MsgSubject = -101,
+MsgText = -102,
+MsgTo = -103,
+MsgFeature = -104,
+MsgDelete = -105,
+MsgDeliver = -106,
+MsgID = -107,
+
 Command = 1,
 AccountID = 2,
 OfferID = 3,
@@ -85,5 +95,7 @@ IntrMultNone = 78,
 EqtyEnabledFlg = 79,
 EqtyStop = 80,
 EqtyLimit = 81,
-ExpireDateTime = 82
+ExpireDateTime = 82,
+PegOffsetMin = 83,
+PegOffsetMax = 84
 } O2GRequestParamsEnum;

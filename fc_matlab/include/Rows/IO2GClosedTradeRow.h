@@ -54,6 +54,8 @@ class IO2GClosedTradeTableRow : public IO2GClosedTradeRow
  public:
     
     virtual double getPL() = 0;
+    virtual const char* getInstrument() = 0;
+    virtual double getNetPL() = 0;
     //
 
 };

@@ -46,9 +46,12 @@ class IO2GOrderRow : public IO2GRow
     virtual bool getWorkingIndicator() = 0;
     virtual const char* getPegType() = 0;
     virtual double getPegOffset() = 0;
+    virtual double getPegOffsetMin() = 0;
+    virtual double getPegOffsetMax() = 0;
     virtual DATE getExpireDate() = 0;
     virtual const char* getValueDate() = 0;
     virtual const char* getParties() = 0;
+    virtual int getSide() = 0;
     //
 
 };
@@ -63,6 +66,10 @@ class IO2GOrderTableRow : public IO2GOrderRow
     
     virtual double getStop() = 0;
     virtual double getLimit() = 0;
+    virtual const char* getStopOrderID() = 0;
+    virtual const char* getLimitOrderID() = 0;
+    virtual int getTypeStop() = 0;
+    virtual int getTypeLimit() = 0;
     virtual int getStopTrailStep() = 0;
     virtual double getStopTrailRate() = 0;
     //

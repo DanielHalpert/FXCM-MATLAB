@@ -18,16 +18,16 @@ class AccountColumnsEnum
      Balance = 3,
      NonTradeEquity = 4,
      M2MEquity = 5,
-     UsedMargin = 6,
-     UsedMargin3 = 7,
-     MarginCallFlag = 8,
-     LastMarginCallDate = 9,
-     MaintenanceType = 10,
-     AmountLimit = 11,
-     BaseUnitSize = 12,
-     MaintenanceFlag = 13,
-     ManagerAccountID = 14,
-     LeverageProfileID = 15
+     MarginCallFlag = 6,
+     LastMarginCallDate = 7,
+     MaintenanceType = 8,
+     AmountLimit = 9,
+     BaseUnitSize = 10,
+     MaintenanceFlag = 11,
+     ManagerAccountID = 12,
+     LeverageProfileID = 13,
+     HadgeMarginPCT = 14,
+     ATPID = 15
    };
 };
 
@@ -52,9 +52,13 @@ class AccountTableColumnsEnum
      MaintenanceFlag = 13,
      ManagerAccountID = 14,
      LeverageProfileID = 15,
-     Equity = 16,
-     DayPL = 17,
-     UsableMargin = 18,
-     GrossPL = 19
+     HadgeMarginPCT = 16,
+     ATPID = 17,
+     Equity = 18,
+     DayPL = 19,
+     UsableMargin = 20,
+     GrossPL = 21,
+     UsableMarginInPercentage = 22,
+     UsableMaintMarginInPercentage = 23
    };
 };
