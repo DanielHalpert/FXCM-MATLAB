@@ -3,7 +3,7 @@ fc_msg = 0;
 if not(libisloaded('fc_matlab'))
     display('need login first');
 else
-    [fc_msg] = calllib('fc_matlab','createEntryOrder', '01549059', 20000, 'S', 'GTC', 'EUR/USD', 'L', 1.09111, '115881421');
+    [fc_msg] = calllib('fc_matlab','createEntryOrder', '01549059', 20000, 'S', 'GTC', 'EUR/USD', 'L', 1.06111, '');
 end;    
 
 %display(fc_msg);

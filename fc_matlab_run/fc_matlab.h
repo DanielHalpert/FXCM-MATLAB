@@ -23,6 +23,9 @@ DECLDIR int __stdcall getRealTimePrices(const char *instrument);
 DECLDIR int __stdcall stopPrices(const char *instrument);
 DECLDIR int __stdcall printOpenPositions(const char *sAccount, const char *fileName);
 DECLDIR int __stdcall printOrders(const char *sAccount, const char *fileName);
+DECLDIR int  __stdcall changeELSstopLimit(const char *sAccount, const char *tradeId, const double limitPrice, const double stopPrice);
+DECLDIR int  __stdcall changeOrder(const char *sAccount, const char *orderId, const double price, const int amount);
+
 
 void __stdcall fc_mexCallback(char *msg, double msgType);
 //void printLog(std::string str);
