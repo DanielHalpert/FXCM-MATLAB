@@ -222,7 +222,7 @@ void ResponseListener::onTablesUpdates(IO2GResponse *data)
                         {
                             O2G2Ptr<IO2GMessageRow> message = reader->getMessageRow(i);
 
-							sprintf(buf, "Message: From#=%s, Subject=%s, Text=%f, MsgID=%f\n", message->getFrom(), message->getSubject(), message->getText(), message->getMsgID());
+							sprintf(buf, "Message: From#=%s, Subject=%s, Text=%s, MsgID=%f\n", message->getFrom(), message->getSubject(), message->getText(), message->getMsgID());
 							cb_sendMsg(buf, 2);
 							std::cout << buf;
 
