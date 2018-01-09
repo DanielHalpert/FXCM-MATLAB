@@ -5,5 +5,10 @@ login_fc
 logout_fc
 getHistoryPrices
 createMarketOrder
+createELSorder
+createEntryOrder
 getRealTimePrices
 stopPrices
+printOpenPositions
+printOrders
+changeELSstopLimit
