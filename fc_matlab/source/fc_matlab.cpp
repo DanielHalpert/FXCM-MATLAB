@@ -14,8 +14,8 @@
 
 void printPrices(IO2GResponse *response, const char* fileName);
 IO2GRequest *createMarketOrderRequest(IO2GSession* session, const char* sOfferID, const char* sAccountID, int iAmount, const char* sBuySell, const char* tif, const char* ticketNum);
-IO2GRequest *createEntryOrderRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount, const char *sBuySell, const char* StopLimit, const double price, const char* ticketNum);
-IO2GRequest *createELSRequest(const char *sOfferID, const char *sAccountID, int iAmount, double dRate, double dRateLimit, double dRateStop, const char *sBuySell, const char *sOrderType, const char * tif, const int trailStop);
+IO2GRequest *createEntryOrderRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount, const char *sBuySell, const char* StopLimit, const double price, const char* ticketNum, const char *tif, const char* expDate);
+IO2GRequest *createELSRequest(const char *sOfferID, const char *sAccountID, int iAmount, double dRate, double dRateLimit, double dRateStop, const char *sBuySell, const char *sOrderType, const char * tif, const int trailStop, const char* expDate);
 IO2GRequest *editOrderRequest(const char *sAccountID, const char *orderId, const double StopLimit, const int amount);
 
 char* getAccountID(const char *sAccount);
@@ -280,7 +280,7 @@ int __stdcall createMarketOrder(const char *sAccount, int iAmount, const char *s
 	return(ret);
 }
 //-----------------------------------------------------------------------------------//
-int __stdcall createEntryOrder(const char *sAccount, int iAmount, const char *sBuySell, const char *tif, const char *instrument, const char* StopLimit, const double price, const char* ticketNum)
+int __stdcall createEntryOrder(const char *sAccount, int iAmount, const char *sBuySell, const char *tif, const char *instrument, const char* StopLimit, const double price, const char* ticketNum, const char* expDate)
 {
 	int ret = 0;
 	O2G2Ptr<IO2GOfferRow> offer = getOffer(session, instrument);
@@ -289,7 +289,7 @@ int __stdcall createEntryOrder(const char *sAccount, int iAmount, const char *sB
 
 	if (offer && accountID != NULL)
 	{
-		O2G2Ptr<IO2GRequest> request = createEntryOrderRequest(session, offer->getOfferID(), accountID, iAmount, sBuySell, StopLimit, price, ticketNum);
+		O2G2Ptr<IO2GRequest> request = createEntryOrderRequest(session, offer->getOfferID(), accountID, iAmount, sBuySell, StopLimit, price, ticketNum, tif, expDate);
 		if (request)
         {
             responseListener->setRequestID(request->getRequestID());
@@ -310,7 +310,7 @@ int __stdcall createEntryOrder(const char *sAccount, int iAmount, const char *sB
 	return(ret);
 }
 //-----------------------------------------------------------------------------------//
-int __stdcall createELSorder(const char *sAccount, int iAmount, const char *sBuySell, const char *instrument, const char *ordType1, const char *tif, const double price, const double limitPrice, const double stopPrice, const int trailStop)
+int __stdcall createELSorder(const char *sAccount, int iAmount, const char *sBuySell, const char *instrument, const char *ordType1, const char *tif, const double price, const double limitPrice, const double stopPrice, const int trailStop, const char* expDate)
 {
 	int ret = 0;
 	char orderType[5];
@@ -338,7 +338,7 @@ int __stdcall createELSorder(const char *sAccount, int iAmount, const char *sBuy
 			
 
 
-		O2G2Ptr<IO2GRequest> request = createELSRequest(offer->getOfferID(), accountID, iAmount, price, limitPrice, stopPrice, sBuySell, orderType, tif, trailStop);
+		O2G2Ptr<IO2GRequest> request = createELSRequest(offer->getOfferID(), accountID, iAmount, price, limitPrice, stopPrice, sBuySell, orderType, tif, trailStop, expDate);
 		if (request)
 		{
 			responseListener->setRequestID(request->getRequestID());
@@ -449,7 +449,7 @@ int __stdcall changeOrder(const char *sAccount, const char *orderId, const doubl
 	}
 }
 //-----------------------------------------------------------------------------------//
-IO2GRequest *createELSRequest(const char *sOfferID, const char *sAccountID, int iAmount,	double dRate, double dRateLimit, double dRateStop, const char *sBuySell, const char *sOrderType, const char * tif, const int trailStop)
+IO2GRequest *createELSRequest(const char *sOfferID, const char *sAccountID, int iAmount,	double dRate, double dRateLimit, double dRateStop, const char *sBuySell, const char *sOrderType, const char * tif, const int trailStop, const char* expDate)
 {
 	O2G2Ptr<IO2GRequestFactory> requestFactory = session->getRequestFactory();
 	if (!requestFactory)
@@ -468,8 +468,11 @@ IO2GRequest *createELSRequest(const char *sOfferID, const char *sAccountID, int 
 		valuemap->setDouble(Rate, dRate);
 	valuemap->setDouble(RateLimit, dRateLimit);
 	valuemap->setDouble(RateStop, dRateStop);
-	valuemap->setString(TimeInForce, tif);
 	valuemap->setString(CustomID, "ELS_order");
+	valuemap->setString(TimeInForce, tif);
+
+	if (strcmp(tif, "GTD") == 0 && expDate != NULL)
+		valuemap->setString(ExpireDateTime, expDate);
 
 	if (trailStop > 0)
 	{
@@ -524,7 +527,7 @@ IO2GRequest *createMarketOrderRequest(IO2GSession* session, const char* sOfferID
     return request.Detach();
 }
 //-----------------------------------------------------------------------------------//
-IO2GRequest *createEntryOrderRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount, const char *sBuySell, const char* StopLimit, const double price, const char* ticketNum)
+IO2GRequest *createEntryOrderRequest(IO2GSession *session, const char *sOfferID, const char *sAccountID, int iAmount, const char *sBuySell, const char* StopLimit, const double price, const char* ticketNum, const char *tif, const char* expDate)
 {
     O2G2Ptr<IO2GRequestFactory> requestFactory = session->getRequestFactory();
     if (!requestFactory)
@@ -541,6 +544,13 @@ IO2GRequest *createEntryOrderRequest(IO2GSession *session, const char *sOfferID,
     valuemap->setString(BuySell, sBuySell);
     valuemap->setInt(Amount, iAmount);
     valuemap->setString(CustomID, "EntryOrder");
+
+	if (tif != NULL)
+		valuemap->setString(TimeInForce, tif);
+
+	if (strcmp(tif,"GTD") == 0  && expDate != NULL)
+		valuemap->setString(ExpireDateTime, expDate);
+
 
 	if (ticketNum[0] != 0 && ticketNum != NULL)
 		valuemap->setString(TradeID, ticketNum);
